@@ -1,16 +1,16 @@
-import gameDB from "./json/steamDB.json" assert {type: 'json'};
+import gameDB from "./db/steamDB.json" assert {type: 'json'};
 import { writeFileSync, readFileSync, appendFileSync } from 'node:fs';
 
 const API = "https://store.steampowered.com/api/appdetails?appids=";
 const STOREADDRESS = 'https://store.steampowered.com/app/'
 const GAME_DB_LENGTH = gameDB.applist.apps.length;
-const INDEX = readFileSync('index.txt', 'utf-8')
+const INDEX = readFileSync('./txt/index.txt', 'utf-8')
 
 function syncToFile(tempIndex) {
   try {
     let i = Number(INDEX) + tempIndex;
 
-    writeFileSync('index.txt', String(i), 'utf-8');
+    writeFileSync('./txt/index.txt', String(i), 'utf-8');
     console.log(`[SAVED] Currently at ${i} of ${GAME_DB_LENGTH}...`)
   } catch (e) {
     console.log(`[ERROR] -> ${e}`);
@@ -22,7 +22,7 @@ async function scanAppIDs(ID) {
     const response = await fetch(API + ID);
 
     if (!response.ok) {
-      console.log(`\nNetwork denied the request. Reason: ${response.status} - ${response.statusText}\nRetrying in 2 minutes.`);
+      console.log(`\nNetwork denied the request. Reason: ${response.status} - ${response.statusText}\nRetrying in 2 minutes with this appID again -> ${ID}`);
       await new Promise(resolve => setTimeout(resolve, 120000));
       return scanAppIDs(ID);
     }
@@ -39,7 +39,7 @@ async function scanAppIDs(ID) {
     if (CONTENT_TYPE == "game") {
       if (IS_FREE) {
         try {
-          appendFileSync('./foundgames.txt', `\n${GAME_NAME}\t${STOREADDRESS}${ID}`, 'utf-8')
+          appendFileSync('./txt/foundgames.txt', `\n${GAME_NAME}\t${STOREADDRESS}${ID}`, 'utf-8')
           return console.log(`[#${ID}] ${GAME_NAME} - is free! Saved to 'foundgames.txt'`)
         } catch (error) {
           console.log(`[ERROR] - Couldn't save the free game I've found. -> ${error}`)
@@ -59,8 +59,8 @@ async function traverseDB() {
   let loc = Number(INDEX);
   let tempIndex = 1;
 
-  if (loc < 1) console.log(`Couldn't find the last index... Starting all over again. ${loc} of ${GAME_DB_LENGTH}...`)
-  console.log(`Firing up... Resuming the search. ${loc} of ${GAME_DB_LENGTH}...`)
+  if (loc > 0) console.log(`Firing up... Resuming the search. ${loc} of ${GAME_DB_LENGTH}...`)
+  else console.log(`Couldn't find the last index... Starting all over again. ${loc} of ${GAME_DB_LENGTH}...`)
 
   for (let i = loc; i < GAME_DB_LENGTH; i++) {
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -71,7 +71,9 @@ async function traverseDB() {
 }
 
 if (isNaN(INDEX)) { // Reset the counter to 0, if it someshow get's changed to 'undefined' or 'NaN'
-  writeFileSync('index.txt', String(0), 'utf-8');
+  writeFileSync('./txt/index.txt', String(0), 'utf-8');
 }
 
 traverseDB();
+
+// scanAppIDs(570); // Can uncomment this line to test out the scanner with any appID.
