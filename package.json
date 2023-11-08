@@ -1,0 +1,20 @@
+{
+  "name": "freesteamgamesdb",
+  "version": "0.0.1",
+  "description": "Scan the Database, list the free game!",
+  "main": "main.js",
+  "type":"module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sorrowfulfloyd/FreeSteamGamesDB.git"
+  },
+  "author": "sorrowfulfloyd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sorrowfulfloyd/FreeSteamGamesDB/issues"
+  },
+  "homepage": "https://github.com/sorrowfulfloyd/FreeSteamGamesDB#readme"
+}
